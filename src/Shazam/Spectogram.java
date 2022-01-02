@@ -92,7 +92,7 @@ public class Spectogram {
         for (int x = 0; x < (int)maxValue; x ++) {
 
             for (int y = 0; y < 256; y++) {
-                spectrogram[(int)x][y] = Math.log10(spectrogram[(int) x][y] - minvalue) / Math.log10(maxvalue - minvalue);
+                spectrogram[(int)x][y] = Math.log10(spectrogram[(int) x][y] - minvalue) / Math.log(maxvalue - minvalue);
                 double intense = 255 - spectrogram[(int)x][y] * 255;
 
                 img.setRGB(x,511-y-256,(int)intense);

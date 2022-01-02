@@ -41,9 +41,9 @@ public class Shazam {
         double[][] ob = spect.getValues();
 
 
-        File outputfile = new File("image.jpg");
+        File outputfile = new File("image.png");
         try {
-            ImageIO.write(spect.drawSpectrogram(), "jpg", outputfile);
+            ImageIO.write(spect.drawSpectrogram(), "png", outputfile);
         }catch (IOException err){
 
         }
