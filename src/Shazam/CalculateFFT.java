@@ -1,0 +1,38 @@
+package Shazam;
+
+public class CalculateFFT {
+
+    public static double[] calculateFFT(byte[] signal)
+    {
+        int mPeakPos;
+
+        final int mNumberOfFFTPoints =1024;
+        double mMaxFFTSample;
+        double temp;
+        Complex[] y;
+        Complex[] complexSignal = new Complex[mNumberOfFFTPoints];
+        double[] absSignal = new double[mNumberOfFFTPoints/2];
+
+        for(int i = 0; i < mNumberOfFFTPoints; i++){
+            temp = (double)((signal[2*i] & 0xFF) | (signal[2*i+1] << 8)) / 32768.0F;
+            complexSignal[i] = new Complex(temp,0.0);
+        }
+
+        y = FFT.fft(complexSignal);
+
+        mMaxFFTSample = 0.0;
+        mPeakPos = 0;
+        for(int i = 0; i < (mNumberOfFFTPoints/2); i++)
+        {
+            absSignal[i] = Math.sqrt(Math.pow(y[i].re(), 2) + Math.pow(y[i].im(), 2));
+            if(absSignal[i] > mMaxFFTSample)
+            {
+                mMaxFFTSample = absSignal[i];
+                mPeakPos = i;
+            }
+        }
+
+        return absSignal;
+
+    }
+}
