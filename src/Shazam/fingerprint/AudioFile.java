@@ -1,5 +1,6 @@
 package Shazam.fingerprint;
 
+import javax.sound.sampled.*;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -104,6 +105,7 @@ public class AudioFile {
 		
 		// convert the file to a 16 bit mono .wav file
 		Process process = Runtime.getRuntime().exec(System.getenv("FFMPEG_PATH") + " -i " + this.file.getAbsolutePath() + " " + getWAVFilePath());
+
 		if(process.waitFor() != 0) {
 			byte[] data = new byte[process.getErrorStream().available()];
 			process.getErrorStream().read(data);

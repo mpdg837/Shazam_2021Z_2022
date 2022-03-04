@@ -16,7 +16,7 @@ public class Shazam {
 
 
         }catch (Exception err){
-            System.out.println(err.getMessage());
+            err.printStackTrace();
         }
     }
 
