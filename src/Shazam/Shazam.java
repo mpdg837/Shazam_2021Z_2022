@@ -6,15 +6,16 @@ import Shazam.fingerprint.hash.Spectrogram;
 import Shazam.fingerprint.hash.peak.HashedPeak;
 
 
-import java.io.File;
+import java.io.*;
 
 public class Shazam {
 
     public Shazam(){
         try {
-            AudioFile file = new AudioFile(new File("sam.mp3"));
+            AudioRecorder.record();
+            AudioFile file = new AudioFile(new File("recorded.wav"));
 
-
+            file.getSpectrogram().render("spect.png");
         }catch (Exception err){
             err.printStackTrace();
         }

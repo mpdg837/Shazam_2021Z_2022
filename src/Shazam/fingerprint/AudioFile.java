@@ -67,10 +67,8 @@ public class AudioFile {
 		if(!this.file.exists()) {
 			throw new FileNotFoundException();
 		}
-		this.wavFilePath = Directory.WAV + getFileHashString() + ".wav";
-		
-		// convert the audio file to a wav file
-		this.convert();
+		this.wavFilePath = file.getAbsolutePath();
+
 		
 		// load the file into the audio file buffer
 		this.buffer = new AudioFileBuffer(this);
@@ -85,34 +83,7 @@ public class AudioFile {
 		this.spectrogram = new Spectrogram(this);
 	}
 	
-	/**
-	 * Converts the audio file to a 16 bit mono WAV file
-	 * 
-	 * @throws Exception
-	 */
-	public void convert() throws Exception {
-		
-		// if the wav already exists we do not need to convert it again
-		if(Files.exists(Paths.get(getWAVFilePath()))) {
-			return;
-		}
-		
-		// make the directory if it doesn't exist
-		File wavsDir = new File(Directory.WAV);
-		if(!wavsDir.exists()) {
-			wavsDir.mkdirs();
-		}
-		
-		// convert the file to a 16 bit mono .wav file
-		Process process = Runtime.getRuntime().exec(System.getenv("FFMPEG_PATH") + " -i " + this.file.getAbsolutePath() + " " + getWAVFilePath());
 
-		if(process.waitFor() != 0) {
-			byte[] data = new byte[process.getErrorStream().available()];
-			process.getErrorStream().read(data);
-			throw new Exception("Failed to convert audio file: " + new String(data));
-		}
-	}
-	
 	/**
 	 * 
 	 * @return The file hash as a string
