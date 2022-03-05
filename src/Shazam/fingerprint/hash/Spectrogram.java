@@ -55,17 +55,18 @@ public class Spectrogram {
 		for(int i = 0; i < width; ++i) {
 			for(int j = 0; j < height; ++j) {
 
-				int level = power - (int) (spectrogram[i][j] * power);
+					int level = power - (int) (spectrogram[i][j] * power);
 
-				int red = level;
-				int green = 0;
-				int blue = 0;
+					int red = level;
+					int green = 0;
+					int blue = 0;
 
-				int rgb = red;
-				rgb = (rgb << 8) + green;
-				rgb = (rgb << 8) + blue;
+					int rgb = red;
+					rgb = (rgb << 8) + green;
+					rgb = (rgb << 8) + blue;
 
-				image.setRGB(i, height - j-1, rgb);
+					image.setRGB(i, height - j - 1, rgb);
+
 			}
 		}
 		
