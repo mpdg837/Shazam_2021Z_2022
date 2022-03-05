@@ -13,7 +13,7 @@ public class Spectrogram {
 	/**
 	 * The sample size to use for the FFT
 	 */
-	private static final int FFT_SAMPLE_SIZE = 4096;
+	private static final int FFT_SAMPLE_SIZE = 2048;
 	
 	/**
 	 * Used when calculating the overlap for amplitudes
@@ -39,13 +39,7 @@ public class Spectrogram {
 	public Spectrogram(AudioFile audioFile) {
 		this.audioFile = audioFile;
 	}
-	
-	/**
-	 * Creates an image of the spectrogram
-	 * 
-	 * @param audioFile The audio file
-	 * @param filename The name of the image file to save to
-	 */
+
 	public void render(String filename) {
 		// get the spectrogram data
 		double[][] spectrogram = getData();
@@ -53,12 +47,25 @@ public class Spectrogram {
 		// get the image size
 		int width = spectrogram.length;
 		int height = spectrogram[0].length;
-		
+
+		int power = 255;
+
 		// generate the image
 		BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
 		for(int i = 0; i < width; ++i) {
 			for(int j = 0; j < height; ++j) {
-				image.setRGB(i, j, 255 - (int) (spectrogram[i][j]) * 255);
+
+				int level = power - (int) (spectrogram[i][j] * power);
+
+				int red = level;
+				int green = 0;
+				int blue = 0;
+
+				int rgb = red;
+				rgb = (rgb << 8) + green;
+				rgb = (rgb << 8) + blue;
+
+				image.setRGB(i, height - j-1, rgb);
 			}
 		}
 		

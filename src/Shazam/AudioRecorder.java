@@ -5,7 +5,7 @@ import java.io.*;
 
 public class AudioRecorder {
     // record duration, in milliseconds
-    static final long RECORD_TIME = 5000;  // 10 ms
+    static final long RECORD_TIME = 10*1000;  // 10 ms
 
     // path of the wav file
     File wavFile = new File("recorded.wav");
@@ -20,8 +20,8 @@ public class AudioRecorder {
      * Defines an audio format
      */
     AudioFormat getAudioFormat() {
-        float sampleRate = 16000;
-        int sampleSizeInBits = 8;
+        float sampleRate = 44000;
+        int sampleSizeInBits = 16;
         int channels = 2;
         boolean signed = true;
         boolean bigEndian = true;
