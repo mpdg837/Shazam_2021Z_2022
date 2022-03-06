@@ -1,9 +1,7 @@
 package Shazam;
 
-import Shazam.fingerprint.AudioFile;
-import Shazam.fingerprint.hash.FingerPrint;
-import Shazam.fingerprint.hash.Spectrogram;
-import Shazam.fingerprint.hash.peak.HashedPeak;
+import Shazam.Analysing.Comparer;
+import Shazam.Analysing.HashFile;
 
 
 import java.io.*;
@@ -13,9 +11,23 @@ public class Shazam {
     public Shazam(){
         try {
             AudioRecorder.record();
-            AudioFile file = new AudioFile(new File("recorded.wav"));
 
-            file.getSpectrogram().render("spect.png");
+            Comparer compare = new Comparer();
+            compare.setRecordFile(new File("recorded.wav"));
+
+            File samplesFolder = new File("Hashes/");
+            String[] samplesFiles = samplesFolder.list();
+
+            for(String file : samplesFiles){
+
+                HashFile hfh = new HashFile(new File("Hashes/"+file));
+                hfh.read();
+
+                compare.addMusic(hfh);
+            }
+
+            compare.compare();
+
         }catch (Exception err){
             err.printStackTrace();
         }

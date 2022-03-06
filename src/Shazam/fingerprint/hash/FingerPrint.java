@@ -3,6 +3,7 @@ package Shazam.fingerprint.hash;
 import java.util.ArrayList;
 import java.util.List;
 
+import Shazam.fingerprint.MainParameters;
 import Shazam.fingerprint.AudioFile;
 import Shazam.fingerprint.hash.peak.HashedPeak;
 import Shazam.fingerprint.hash.peak.Peak;
@@ -59,7 +60,7 @@ public class FingerPrint {
 		// get the peaks in the spectrogram
 		List<Peak> peaks = new ArrayList<Peak>();
 		for(int i = 0; i < spectrogram.length; ++i) {
-			for(int j = 0; j < spectrogram[0].length; ++j) {
+			for(int j = 0; j < MainParameters.MAX_FREQUENCY; ++j) {
 				if(isPeakAt(i, j, spectrogram, PEAK_NEIGHBORHOOD)) {
 					peaks.add(new Peak(i, j));
 				}
@@ -112,13 +113,17 @@ public class FingerPrint {
 		int maxX = x + neighborhood >= spectrogram.length ? spectrogram.length - 1 : x + neighborhood;
 		int minY = y - neighborhood < 0 ? 0 : y - neighborhood;
 		int maxY = y + neighborhood >= spectrogram[0].length ? spectrogram[0].length - 1 : y + neighborhood;
+
 		for(int k = minX; k < maxX; ++k) {
 			for(int l = minY; l < maxY; ++l) {
-				if(spectrogram[k][l] > amplitude) {
-					return false;
-				}
+
+					if (spectrogram[k][l] > amplitude) {
+						return false;
+					}
+
 			}
 		}
+
 		return true;
 	}
 

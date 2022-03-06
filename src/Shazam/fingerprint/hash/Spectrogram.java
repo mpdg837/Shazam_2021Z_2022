@@ -6,6 +6,7 @@ import java.io.IOException;
 
 import javax.imageio.ImageIO;
 
+import Shazam.fingerprint.MainParameters;
 import Shazam.fingerprint.AudioFile;
 
 public class Spectrogram {
@@ -13,7 +14,7 @@ public class Spectrogram {
 	/**
 	 * The sample size to use for the FFT
 	 */
-	private static final int FFT_SAMPLE_SIZE = 2048;
+
 	
 	/**
 	 * Used when calculating the overlap for amplitudes
@@ -94,13 +95,13 @@ public class Spectrogram {
 		// calculate the overlap
 		if(OVERLAP_FACTOR > 1) {
 			int numOverlappedSamples = samples * OVERLAP_FACTOR;
-			int backSamples = FFT_SAMPLE_SIZE * (OVERLAP_FACTOR-1) / OVERLAP_FACTOR;
-			int fftSampleSize_1= FFT_SAMPLE_SIZE - 1;
+			int backSamples = MainParameters.FFT_SAMPLE_SIZE * (OVERLAP_FACTOR-1) / OVERLAP_FACTOR;
+			int fftSampleSize_1= MainParameters.FFT_SAMPLE_SIZE - 1;
 			short[] overlapAmp = new short[numOverlappedSamples];
 			int position = 0;
 			for (int i = 0; i < amplitudes.length; ++i){
 				overlapAmp[position++] = amplitudes[i];
-				if (position % FFT_SAMPLE_SIZE == fftSampleSize_1) {
+				if (position % MainParameters.FFT_SAMPLE_SIZE == fftSampleSize_1) {
 					i -= backSamples;
 				}
 			}
@@ -109,7 +110,7 @@ public class Spectrogram {
 		}
 		
 		// get the number of frames
-		int frames = samples / FFT_SAMPLE_SIZE;
+		int frames = samples / MainParameters.FFT_SAMPLE_SIZE;
 		
 		// get the hamming window
 		double[] window = getHammingWindow();
@@ -117,9 +118,9 @@ public class Spectrogram {
 		// calculate the signals
 		double[][] signals = new double[frames][];
 		for(int f = 0; f < frames; ++f) {
-			signals[f] = new double[FFT_SAMPLE_SIZE];
-			int start = f * FFT_SAMPLE_SIZE;
-			for(int n = 0; n <  FFT_SAMPLE_SIZE; ++n) {
+			signals[f] = new double[MainParameters.FFT_SAMPLE_SIZE];
+			int start = f * MainParameters.FFT_SAMPLE_SIZE;
+			for(int n = 0; n <  MainParameters.FFT_SAMPLE_SIZE; ++n) {
 				signals[f][n] = amplitudes[start + n] * window[n];
 			}
 		}
@@ -163,7 +164,11 @@ public class Spectrogram {
 					if(absolute[i][j] < minValidAmp) {
 						spectrogram[i][j] = 0;
 					} else {
-						spectrogram[i][j] = Math.log(absolute[i][j] / minAmp) / difference;
+						if (j < MainParameters.MAX_FREQUENCY) {
+							spectrogram[i][j] = Math.log(absolute[i][j] / minAmp) / difference;
+						}else{
+							spectrogram[i][j] = 1;
+						}
 					}
 				}
 			}
@@ -179,10 +184,10 @@ public class Spectrogram {
 	 * @return The hamming window
 	 */
 	private double[] getHammingWindow() {
-		int m = FFT_SAMPLE_SIZE / 2;
+		int m = MainParameters.FFT_SAMPLE_SIZE / 2;
 		double r;
 		double pi = Math.PI;
-		double[] w = new double[FFT_SAMPLE_SIZE];
+		double[] w = new double[MainParameters.FFT_SAMPLE_SIZE];
 		r = pi / (m + 1);
 		for (int n = -m; n < m; n++) {
 			w[m + n] = 0.5f + 0.5f * Math.cos(n * r);
