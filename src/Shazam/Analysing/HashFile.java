@@ -78,6 +78,7 @@ public class HashFile {
     public void convert(File audioFile) throws Exception {
         AudioFile fileA = new AudioFile(audioFile.getAbsoluteFile());
 
+        fileA.getSpectrogram().render("spect_"+audioFile.getName()+".png");
         HashedPeak[] peaks = fileA.getFingerPrint().getHashes();
         ArrayList<String> peaksHex = new ArrayList<>();
 

@@ -1,5 +1,8 @@
 package Shazam.fingerprint.hash;
 
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -7,6 +10,8 @@ import Shazam.fingerprint.MainParameters;
 import Shazam.fingerprint.AudioFile;
 import Shazam.fingerprint.hash.peak.HashedPeak;
 import Shazam.fingerprint.hash.peak.Peak;
+
+import javax.imageio.ImageIO;
 
 /**
  * Calculates the fingerprint of the audio file given
@@ -67,6 +72,8 @@ public class FingerPrint {
 			}
 		}
 
+		makeImage(peaks,spectrogram);
+
 		// store the generated hashes
 		List<HashedPeak> hashes = new ArrayList<HashedPeak>(); //new HashedPeak[peaks.size() * FAN_VALUE];
 		
@@ -95,7 +102,21 @@ public class FingerPrint {
 		this.hashes = hashes.toArray(new HashedPeak[hashes.size()]);
 		return this.hashes;
 	}
-	
+
+	private void makeImage(List<Peak> peaks,double[][] sepctrogram){
+		BufferedImage img = new BufferedImage(sepctrogram.length,sepctrogram[0].length,BufferedImage.TYPE_3BYTE_BGR);
+		for(Peak peak: peaks){
+			img.setRGB(peak.getTime(),sepctrogram[0].length -1 - peak.getFreq(),255);
+		}
+
+		try {
+			ImageIO.write(img,"png",new File("keypoints.png"));
+		}catch (IOException err){
+			err.printStackTrace();
+		}
+
+	}
+
 	/**
 	 * Checks whether a given point in the spectrogram is a local maxima for the given 
 	 * neighborhood size
@@ -107,6 +128,7 @@ public class FingerPrint {
 	 * 
 	 * @return Whether the given point is a local maxima or not
 	 */
+
 	private boolean isPeakAt(int x, int y, double[][] spectrogram, int neighborhood) {
 		double amplitude = spectrogram[x][y];
 		int minX = x - neighborhood < 0 ? 0 : x - neighborhood;
