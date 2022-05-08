@@ -1,5 +1,6 @@
 package Shazam.Analysing;
 
+import Shazam.Audio.MakeSound;
 import Shazam.DataBase.Analysing.RecordTable;
 import Shazam.DataBase.LoginData;
 import Shazam.fingerprint.AudioFile;
@@ -9,6 +10,8 @@ import javax.swing.plaf.nimbus.State;
 import java.io.File;
 import java.io.PrintWriter;
 import java.sql.*;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -66,10 +69,6 @@ public class Comparer {
                 }
 
 
-
-                if (max == count && max != 0) {
-                    throw new AnalyseException("Nie można dokonać jednoznaczengo wykrycia, znaleziono dwa utowry pasujące");
-                }
                 if (max < count) {
                     times.clear();
                     max = count;
@@ -79,7 +78,7 @@ public class Comparer {
                 }
 
                 sum += count;
-                System.out.println((n + 1) + ") Nazwa: '" + file.getTitle() + "' Ilość wspólnych punktów charakterystycznych: " + count);
+
                 n++;
 
             }
@@ -99,23 +98,20 @@ public class Comparer {
                 }
             }
 
-            if (max == counterMusic.get(n) && max != 0) {
-                throw new AnalyseException("Nie można dokonać jednoznaczengo wykrycia, znaleziono dwa utowry pasujące");
-            }
             if (max < counterMusic.get(n)) {
                 max = counterMusic.get(n);
                 maxN = n;
             }
 
             sum += counterMusic.get(n);
-            System.out.println((n + 1) + ") Nazwa: '" + file.getTitle() + "' Ilość wspólnych punktów charakterystycznych: " + counterMusic.get(n));
+
             n++;
 
 
         }
     }
 
-    public void compare(boolean isConnected, Statement state) throws SQLException{
+    public boolean compare(boolean isConnected, Statement state, Instant start) throws SQLException{
 
         sum = 0;
         max = 0;
@@ -133,8 +129,6 @@ public class Comparer {
 
 
 
-            System.out.println("Analiza bazy utworów");
-            System.out.println("Ilość utworów: " + simplifiedMusic.size());
 
 
             System.out.println("===");
@@ -148,22 +142,12 @@ public class Comparer {
 
             int avrg = sum/simplifiedMusic.size();
 
-            System.out.println("===");
-            System.out.println("Podsumowanie analizy:");
-            System.out.println("");
-
-            System.out.println("Średnia ilość wspólnych punktów: "+avrg);
-            System.out.println("Maksymalna ilość wspólnych punktów: "+max);
-            System.out.println("");
-
             if(simplifiedMusic.size()>0) {
 
 
                 int avrga = (sum - max) / (simplifiedMusic.size() - 1);
 
-                System.out.println("Średnia ilość wspólnych punktów z pominięciem maksymalnego dopasowania: "+avrga);
-
-                if(max < avrga * 1.75){
+                if(max < avrga * 1.5 || max < 110){
                     throw new AnalyseException("Nie można stwierdzić jednoznacznie który utwór jest odsłuchiwany");
                 }
 
@@ -175,43 +159,73 @@ public class Comparer {
             System.out.println("Autor: "+simplifiedMusic.get(maxN).getAuthor());
             System.out.println("Rok: "+simplifiedMusic.get(maxN).getYear());
 
-            if(isConnected) {
-                ResultSet result = state.executeQuery("SELECT MAX(TimeHash) FROM Hashe WHERE UtworId="+maxId);
-
-                int maximum = 0;
-                if(result.next()){
-                    maximum = result.getInt(1);
-                }
-
-                int maxmax=0;
-                int maxTim = 0;
-
-                for(int n=0;n<=maximum;n++) {
-                    ResultSet result2 = state.executeQuery("SELECT COUNT(*) FROM (SELECT DISTINCT record.HashId as hid1, record.HashCode as hash1, total.HashCode as hash2 " +
-                            "FROM (SELECT DISTINCT HashCode FROM Hashe WHERE UtworId = " + maxId + " AND TimeHash = " + n + ") as total," +
-                            "Record as record WHERE record.HashCode = total.HashCode) as total2");
-
-                    if (result2.next()) {
-                        int getNum = result2.getInt(1);
-
-                        if(maxmax<getNum){
-                            maxmax = getNum;
-                            maxTim = n;
-                        }
-                    }
-
-
-                }
-
-                System.out.println("Czas: "+(maxTim*8.73)+" s");
-            }
+            maxTime(isConnected,state,simplifiedMusic.get(maxN).getTitle(),start);
 
         }catch (AnalyseException err){
             System.out.println("Błąd: "+err.toString());
+            return false;
         }
 
+        return true;
+
+    }
+
+    void maxTime(boolean isConnected,Statement state,String filename,Instant start) throws SQLException{
+        if(isConnected) {
+            ResultSet result = state.executeQuery("SELECT MAX(TimeHash) FROM Hashe WHERE UtworId=" + maxId);
+
+            int maximum = 0;
+            if (result.next()) {
+                maximum = result.getInt(1);
+            }
+
+            int maxmax = 0;
+            int maxTim = 0;
+            int lastMaxTim = 0;
+
+            int lastanalysed = 0;
+
+            for (int n = 0; n <= maximum; n++) {
+                ResultSet result2 = state.executeQuery("SELECT COUNT(*) FROM (SELECT DISTINCT record.HashId as hid1, record.HashCode as hash1, total.HashCode as hash2 " +
+                        "FROM (SELECT DISTINCT HashCode FROM Hashe WHERE UtworId = " + maxId + " AND TimeHash = " + n + ") as total," +
+                        "Record as record WHERE record.HashCode = total.HashCode) as total2");
+
+                if (result2.next()) {
+                    int getNum = result2.getInt(1);
+                    if ((maxmax + lastMaxTim) / 2 < (getNum + lastanalysed) / 2) {
+                        maxmax = getNum;
+                        maxTim = n;
+                        lastMaxTim = lastanalysed;
+                    }
+
+                    lastanalysed = getNum;
+                }
 
 
+            }
+            try {
+                Instant end = Instant.now();
+                Duration timeElapsed = Duration.between(start, end);
+
+                double partTime = ((double) maxTim / (double) maximum);
+                int delta = (int) timeElapsed.toSeconds();
+
+                MakeSound sound = new MakeSound();
+                int full = (int)sound.time(new File("Samples/" + filename));
+
+                double extra = (double)delta/(double)full;
+
+                partTime += extra;
+
+                int maxTime = sound.playSound("Samples/" + filename, 0, true);
+
+                int actTim = (int) ((double) maxTime * (double) partTime);
+                System.out.println("Czas: "+(partTime*full)+"s");
+                sound.playSound("Samples/" + filename, actTim, false);
+            }catch (Exception ignore){
+
+            }
+        }
     }
 
 }

@@ -69,7 +69,6 @@ public class AudioRecorder {
     void finish() {
         line.stop();
         line.close();
-        System.out.println("Finished");
     }
 
     /**

@@ -4,12 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 
-import javax.sound.sampled.AudioFormat;
-import javax.sound.sampled.AudioInputStream;
-import javax.sound.sampled.AudioSystem;
-import javax.sound.sampled.DataLine;
-import javax.sound.sampled.LineUnavailableException;
-import javax.sound.sampled.SourceDataLine;
+import javax.sound.sampled.*;
 
 public class MakeSound {
 
@@ -20,7 +15,13 @@ public class MakeSound {
     private AudioFormat audioFormat;
     private SourceDataLine sourceLine;
 
-    public void playSoundURL(String url,int timeStart){
+    public double time(File file) throws UnsupportedAudioFileException, IOException {
+        AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(file);
+        AudioFormat format = audioInputStream.getFormat();
+        long frames = audioInputStream.getFrameLength();
+       return (frames+0.0) / format.getFrameRate();
+    }
+    public int playSoundURL(String url,int timeStart,boolean countTime){
 
         String strFilename = url;
 
@@ -38,10 +39,10 @@ public class MakeSound {
             System.exit(1);
         }
 
-        playing(timeStart);
+        return playing(timeStart,countTime);
     }
 
-    public void playSound(String filename,int timeStart){
+    public int playSound(String filename,int timeStart, boolean countTime){
 
         String strFilename = filename;
 
@@ -59,10 +60,10 @@ public class MakeSound {
             System.exit(1);
         }
 
-        playing(timeStart);
+        return playing(timeStart,countTime);
     }
 
-    private void playing(int timeStart){
+    private int playing(int timeStart,boolean countTime){
 
         audioFormat = audioStream.getFormat();
 
@@ -89,7 +90,7 @@ public class MakeSound {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            if (nBytesRead >= 0 && time >timeStart) {
+            if (nBytesRead >= 0 && time >timeStart && !countTime) {
                 @SuppressWarnings("unused")
                 int nBytesWritten = sourceLine.write(abData, 0, nBytesRead);
             }
@@ -97,9 +98,10 @@ public class MakeSound {
             time += 1;
         }
 
-        System.out.println(time);
 
         sourceLine.drain();
         sourceLine.close();
+
+        return time;
     }
 }
