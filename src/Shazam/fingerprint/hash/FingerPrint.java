@@ -27,7 +27,7 @@ public class FingerPrint {
 	/**
 	 * The size of the neighborhood to search for peaks in
 	 */
-	private static final int PEAK_NEIGHBORHOOD = 20;
+	private static final int PEAK_NEIGHBORHOOD = 15;
 	
 	/**
 	 * The number of peaks to look through when generating a hash
@@ -95,7 +95,7 @@ public class FingerPrint {
 				
 				// if they are within a reasonable time distance, calculate the hash
 				if(delta >= 0 && delta <= 200) {
-					hashes.add(new HashedPeak(one, two, delta));
+					hashes.add(new HashedPeak(one, two, delta, two.getTime()));
 				}
 			}
 		}
@@ -106,7 +106,12 @@ public class FingerPrint {
 	private void makeImage(List<Peak> peaks,double[][] sepctrogram){
 		BufferedImage img = new BufferedImage(sepctrogram.length,sepctrogram[0].length,BufferedImage.TYPE_3BYTE_BGR);
 		for(Peak peak: peaks){
-			img.setRGB(peak.getTime(),sepctrogram[0].length -1 - peak.getFreq(),255);
+			img.setRGB(peak.getTime(),sepctrogram[0].length -1 - peak.getFreq(),255*255*255);
+			if(peak.getTime()+1 < sepctrogram.length && sepctrogram[0].length -2 - peak.getFreq() > 0) {
+				img.setRGB(peak.getTime(), sepctrogram[0].length -2- peak.getFreq(), 255 * 255 * 255);
+				img.setRGB(peak.getTime() + 1, sepctrogram[0].length -1- peak.getFreq(), 255 * 255 * 255);
+				img.setRGB(peak.getTime() + 1, sepctrogram[0].length - 2 - peak.getFreq(), 255 * 255 * 255);
+			}
 		}
 
 		try {

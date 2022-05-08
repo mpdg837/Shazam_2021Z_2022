@@ -1,10 +1,13 @@
 package Shazam.Analysing;
 
+import Shazam.DataBase.Processing.AddingMusic;
+import Shazam.DataBase.LoginData;
+import Shazam.DataBase.Processing.ConnectionTest;
 import Shazam.fingerprint.AudioFile;
 import Shazam.fingerprint.hash.peak.HashedPeak;
-import Shazam.fingerprint.util.Hash;
 
 import java.io.*;
+import java.sql.*;
 import java.util.ArrayList;
 
 public class HashFile {
@@ -14,11 +17,21 @@ public class HashFile {
     private String year = "";
     private String album = "";
 
+    public boolean online;
+    public int idOnline;
+
     private File file;
 
     private ArrayList<String> hashes ;
+    private ArrayList<Integer> times;
 
+    public HashFile(int id,Statement statement) throws SQLException{
+        online = true;
+        idOnline = id;
+        readFromDataBase(id,statement);
+    }
     public HashFile(File file){
+        online = false;
         hashes = new ArrayList<>();
         this.file = file;
 
@@ -82,8 +95,11 @@ public class HashFile {
         HashedPeak[] peaks = fileA.getFingerPrint().getHashes();
         ArrayList<String> peaksHex = new ArrayList<>();
 
+        times = new ArrayList<>();
+
         for(HashedPeak peak : peaks){
             peaksHex.add(peak.getHashAsHex());
+            times.add(peak.getTime());
         }
 
         hashes = peaksHex;
@@ -98,6 +114,8 @@ public class HashFile {
     public void save() throws Exception {
         if(file.exists()) file.delete();
 
+        AddingMusic music = new AddingMusic(title,author,2000,album);
+
         PrintWriter writer = new PrintWriter(file);
 
         writer.println(title);
@@ -105,8 +123,10 @@ public class HashFile {
         writer.println(year);
         writer.println(album);
 
+        music.add(hashes,times);
         for(String hash : hashes){
             writer.println(hash);
+
         }
 
         writer.close();
@@ -124,6 +144,33 @@ public class HashFile {
         return hashesPeaks;
     }
 
+    public int[] getTimes(){
+        int[] timesMe = new int[hashes.size()];
+
+        int n=0;
+        for(Integer num: times){
+            timesMe[n] = num;
+            n++;
+        }
+
+        return timesMe;
+    }
+
+    public void readFromDataBase(int idUtworu, Statement state) throws SQLException {
+
+
+            ResultSet result = state.executeQuery("SELECT * FROM Utwor WHERE UtworId = "+idUtworu);
+
+            while(result.next()) {
+                title = result.getString("Tytul");
+                author = result.getString("Wykonwaca");
+                year = result.getString("Rok");
+                album = result.getString("Okladka");
+            }
+
+
+    }
+
     public void read() throws IOException {
         FileInputStream stream = new FileInputStream(file);
         BufferedInputStream streamBuf = new BufferedInputStream(stream);
@@ -132,6 +179,8 @@ public class HashFile {
 
         int n=0;
         String line ="";
+
+        hashes.clear();
         while ((line = reader.readLine()) !=null){
 
             switch (n){
