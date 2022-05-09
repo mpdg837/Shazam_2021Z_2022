@@ -17,12 +17,32 @@ import java.sql.DriverManager;
 import java.sql.Statement;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Scanner;
 
 public class Shazam {
 
 
     public Shazam(){
         try {
+            System.out.println("Łączenie z bazą danych...");
+            boolean isConnected = false;
+            Statement statement = null;
+
+            Connection connection = null;
+            try {
+
+                connection = DriverManager.getConnection(LoginData.url, LoginData.username, LoginData.password);
+                statement = connection.createStatement();
+                isConnected = true;
+            }catch (Exception ignore){
+
+            }
+
+
+            System.out.println("Aby rozpocząć wykrywanie utworu naciśnij dowolony klawisz ...");
+
+            Scanner scan = new Scanner(System.in);
+            scan.next();
 
             int trym = 0;
             boolean success = false;
@@ -41,8 +61,7 @@ public class Shazam {
                 System.out.println("Koniec nagrywania ...");
                 compare.setRecordFile(record.getHashes());
 
-                Statement connected = ConnectionTest.isConnected();
-                boolean isConnected = connected != null;
+
 
 
                 if (!isConnected) {
@@ -61,11 +80,8 @@ public class Shazam {
                     success = compare.compare(isConnected, null,start);
                 } else {
 
-                    try (Connection connection = DriverManager.getConnection(LoginData.url, LoginData.username, LoginData.password)) {
 
-
-                        Statement state = connection.createStatement();
-
+                   Statement state = connection.createStatement();
                         GetMusicList list = new GetMusicList(state);
                         int[] samplesFiles = list.musicIds();
 
@@ -79,7 +95,7 @@ public class Shazam {
                         System.out.println("Skanowanie ...");
                         success = compare.compare(isConnected, state,start);
                     }
-                }
+
             }
             if(!success){
                 System.out.println("Nie udalo wykryc się utworu, program konczy dzialanie");

@@ -11,7 +11,7 @@ public class ShazamConverter {
 
     public boolean tryConnect() throws Exception {
 
-        Statement connection = ConnectionTest.isConnected();
+        Statement connection = ConnectionTest.isConnected().createStatement();
 
         if(connection != null) {
             System.out.println("Połączono z bazą danych");

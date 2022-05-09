@@ -20,8 +20,16 @@ public class RecordTable {
 
         StringBuilder queryX = new StringBuilder();
 
-        state.executeUpdate("CREATE TEMPORARY TABLE Record(HashId int, HashCode varchar(40)); \n");
-
+        try {
+            state.executeUpdate("CREATE TEMPORARY TABLE Record(HashId int, HashCode varchar(40)); ");
+        }catch (SQLException ignore){
+            try {
+                state.executeUpdate("DROP TABLE Record;");
+                state.executeUpdate("CREATE TEMPORARY TABLE Record(HashId int, HashCode varchar(40));");
+            }catch (SQLException ign){
+                throw new SQLException();
+            }
+        }
 
         queryX.append("INSERT INTO Record VALUES \n");
         int k = 0;

@@ -29,7 +29,7 @@ public class ComparerTime {
             int maxTim = 0;
 
             String query = "SELECT COUNT(total2.hid1) as sum, total2.timeX FROM\n" +
-                    "(SELECT DISTINCT record.HashId as hid1, record.HashCode as hash1, total.HashCode as hash2, total.TimeHash as timeX \n" +
+                    "(SELECT record.HashId as hid1, record.HashCode as hash1, total.HashCode as hash2, total.TimeHash as timeX \n" +
                     "FROM (SELECT DISTINCT HashCode, TimeHash FROM Hashe WHERE UtworId = "+comp.maxId+") as total,\n" +
                     "Record as record WHERE record.HashCode = total.HashCode) as total2 GROUP BY timeX ORDER BY sum DESC;";
 

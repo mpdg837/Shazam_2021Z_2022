@@ -59,7 +59,7 @@ public class Comparer {
         for (HashFile file : simplifiedMusic) {
             if (file.online) {
 
-                ResultSet result = state.executeQuery("SELECT COUNT(*) FROM (SELECT DISTINCT record.HashId as hid1, record.HashCode as hash1, total.HashCode as hash2 " +
+                ResultSet result = state.executeQuery("SELECT COUNT(*) FROM (SELECT record.HashId as hid1, record.HashCode as hash1, total.HashCode as hash2 " +
                         "FROM (SELECT DISTINCT HashCode FROM Hashe WHERE UtworId = "+file.idOnline+") as total," +
                         "Record as record WHERE record.HashCode = total.HashCode) as total2");
 

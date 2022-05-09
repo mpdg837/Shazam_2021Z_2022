@@ -9,10 +9,10 @@ import java.sql.Statement;
 
 public class ConnectionTest {
 
-    public static Statement isConnected(){
+    public static Connection isConnected(){
         try (Connection connection = DriverManager.getConnection(LoginData.url, LoginData.username, LoginData.password)) {
 
-            return connection.createStatement();
+            return connection;
         }catch (Exception err){
             return null;
         }
