@@ -5,10 +5,10 @@ import java.io.*;
 
 public class AudioRecorder {
     // record duration, in milliseconds
-    static final long RECORD_TIME = 10*1000;  // 10 ms
+    static final long RECORD_TIME = 10 * 1000;  // 2.5 ms
 
     // path of the wav file
-    File wavFile = new File("recorded.wav");
+
 
     // format of audio file
     AudioFileFormat.Type fileType = AudioFileFormat.Type.WAVE;
@@ -33,8 +33,11 @@ public class AudioRecorder {
     /**
      * Captures the sound and record into a WAV file
      */
-    void start() {
+    void start(int n) {
         try {
+
+            File wavFile = new File("recorded"+n+".wav");
+
             AudioFormat format = getAudioFormat();
             DataLine.Info info = new DataLine.Info(TargetDataLine.class, format);
 
@@ -47,11 +50,10 @@ public class AudioRecorder {
             line.open(format);
             line.start();   // start capturing
 
-            System.out.println("Start capturing...");
+
 
             AudioInputStream ais = new AudioInputStream(line);
 
-            System.out.println("Start recording...");
 
             // start recording
             AudioSystem.write(ais, fileType, wavFile);
@@ -76,7 +78,7 @@ public class AudioRecorder {
      */
 
 
-    public static void record() {
+    public static void record(int n) {
         final AudioRecorder recorder = new AudioRecorder();
 
 
@@ -88,7 +90,8 @@ public class AudioRecorder {
 
             public void run() {
                 try {
-                    Thread.sleep(RECORD_TIME);
+                        Thread.sleep(RECORD_TIME);
+
                 } catch (InterruptedException ex) {
                     ex.printStackTrace();
                 }
@@ -99,7 +102,7 @@ public class AudioRecorder {
         stopper.start();
 
         // start recording
-        recorder.start();
+        recorder.start(n);
 
     }
 }

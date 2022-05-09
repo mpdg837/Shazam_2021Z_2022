@@ -10,9 +10,9 @@ import java.util.ArrayList;
 
 public class RecordTable {
 
-    private ArrayList<String> peaks;
+    private String[] peaks;
 
-    public RecordTable(ArrayList<String> peaks){
+    public RecordTable(String[] peaks){
         this.peaks = peaks;
     }
 
@@ -27,7 +27,7 @@ public class RecordTable {
         int k = 0;
         for (String peak : peaks) {
             k++;
-            if (k != peaks.size()) {
+            if (k != peaks.length) {
                 queryX.append( "("+k+",'"+peak+"'),\n");
             } else {
                 queryX.append( "("+k+",'"+peak+"');");

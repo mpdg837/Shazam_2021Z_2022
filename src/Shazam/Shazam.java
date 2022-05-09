@@ -3,9 +3,12 @@ package Shazam;
 import Shazam.Analysing.Comparer;
 import Shazam.Analysing.HashFile;
 import Shazam.Audio.AudioRecorder;
+import Shazam.Audio.ShzazamRecorder;
 import Shazam.DataBase.LoginData;
 import Shazam.DataBase.Processing.ConnectionTest;
 import Shazam.DataBase.Processing.GetMusicList;
+import Shazam.fingerprint.AudioFile;
+import Shazam.fingerprint.hash.peak.HashedPeak;
 
 
 import java.io.*;
@@ -13,8 +16,10 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.Statement;
 import java.time.Instant;
+import java.util.ArrayList;
 
 public class Shazam {
+
 
     public Shazam(){
         try {
@@ -22,20 +27,22 @@ public class Shazam {
             int trym = 0;
             boolean success = false;
 
+
+
             while (!success && trym < 4) {
+                System.out.println("Proba numer: "+(trym+1));
                 trym ++;
-                AudioRecorder.record();
-
-
+                ShzazamRecorder record = new ShzazamRecorder();
                 Comparer compare = new Comparer();
-                compare.setRecordFile(new File("recorded.wav"));
                 Instant start = Instant.now();
+
+                record.listen();
+
+                System.out.println("Koniec nagrywania ...");
+                compare.setRecordFile(record.getHashes());
 
                 Statement connected = ConnectionTest.isConnected();
                 boolean isConnected = connected != null;
-
-
-
 
 
                 if (!isConnected) {
@@ -50,7 +57,7 @@ public class Shazam {
 
                         compare.addMusic(hfh);
                     }
-
+                    System.out.println("Skanowanie ...");
                     success = compare.compare(isConnected, null,start);
                 } else {
 
@@ -69,7 +76,7 @@ public class Shazam {
                             compare.addMusic(hfh);
 
                         }
-
+                        System.out.println("Skanowanie ...");
                         success = compare.compare(isConnected, state,start);
                     }
                 }
