@@ -2,13 +2,9 @@ package Shazam;
 
 import Shazam.Analysing.Comparer;
 import Shazam.Analysing.HashFile;
-import Shazam.Audio.AudioRecorder;
 import Shazam.Audio.ShzazamRecorder;
 import Shazam.DataBase.LoginData;
-import Shazam.DataBase.Processing.ConnectionTest;
 import Shazam.DataBase.Processing.GetMusicList;
-import Shazam.fingerprint.AudioFile;
-import Shazam.fingerprint.hash.peak.HashedPeak;
 
 
 import java.io.*;
@@ -16,7 +12,6 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.Statement;
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.Scanner;
 
 public class Shazam {

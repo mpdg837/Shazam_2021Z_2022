@@ -1,8 +1,6 @@
 package Shazam.Analysing;
 
 import Shazam.DataBase.Processing.AddingMusic;
-import Shazam.DataBase.LoginData;
-import Shazam.DataBase.Processing.ConnectionTest;
 import Shazam.fingerprint.AudioFile;
 import Shazam.fingerprint.hash.peak.HashedPeak;
 

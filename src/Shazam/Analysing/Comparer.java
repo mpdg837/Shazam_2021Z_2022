@@ -56,34 +56,25 @@ public class Comparer {
         ArrayList<Integer> times = new ArrayList<>();
 
 
-        for (HashFile file : simplifiedMusic) {
-            if (file.online) {
+        ResultSet result = state.executeQuery("SELECT COUNT(*) as sum ,total2.UtworId FROM (SELECT record.HashId as hid1, record.HashCode as hash1, total.HashCode as hash2, total.UtworId\n" +
+                "FROM (SELECT DISTINCT HashCode,UtworId FROM Hashe) as total,\n" +
+                "Record as record WHERE record.HashCode = total.HashCode) as total2 GROUP BY total2.UtworId ORDER BY sum DESC;");
 
-                ResultSet result = state.executeQuery("SELECT COUNT(*) FROM (SELECT record.HashId as hid1, record.HashCode as hash1, total.HashCode as hash2 " +
-                        "FROM (SELECT DISTINCT HashCode FROM Hashe WHERE UtworId = "+file.idOnline+") as total," +
-                        "Record as record WHERE record.HashCode = total.HashCode) as total2");
+        boolean firstread = false;
 
-                int count = 0;
-                while (result.next()) {
-                    count = result.getInt(1);
-                }
+        while (result.next()) {
+            int value = result.getInt(1);
+            int id = result.getInt(2);
 
-
-                if (max < count) {
-                    times.clear();
-                    max = count;
-                    maxN = n;
-                    maxId = file.idOnline;
-
-                }
-
-                sum += count;
-
-                n++;
-
+            if(!firstread){
+                maxId = id;
+                max = value;
+                maxN = id - 1;
             }
-        }
 
+            sum += value;
+            firstread = true;
+        }
 
     }
 

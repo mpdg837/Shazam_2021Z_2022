@@ -2,7 +2,7 @@ package Shazam.DataBase;
 
 public class LoginData {
 
-    public static String username = "shazambase";
-    public static String password = "shazambase";
-    public static String url = "jdbc:mysql://db4free.net:3306/shazambase?autoReconnect=true&useSSL=false";
+    public static String username = "root";
+    public static String password = "shazam";
+    public static String url = "jdbc:mysql://localhost:3306/ShazamBase";
 }
