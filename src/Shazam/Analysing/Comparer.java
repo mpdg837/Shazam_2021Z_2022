@@ -129,7 +129,7 @@ public class Comparer {
 
                 int avrga = (sum - max) / (simplifiedMusic.size() - 1);
 
-                if(max < avrga * 1.25 || max < 30){
+                if(max < avrga * 1.25 ){
                     throw new AnalyseException("");
                 }
 
