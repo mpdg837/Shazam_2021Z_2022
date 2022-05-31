@@ -164,7 +164,7 @@ public class Spectrogram {
 					if(absolute[i][j] < minValidAmp) {
 						spectrogram[i][j] = 0;
 					} else {
-						if (j < MainParameters.MAX_FREQUENCY) {
+						if (j < MainParameters.MAX_FREQUENCY && j > MainParameters.MIN_FREQUENCY) {
 							spectrogram[i][j] = Math.log(absolute[i][j] / minAmp) / difference;
 						}else{
 							spectrogram[i][j] = 1;

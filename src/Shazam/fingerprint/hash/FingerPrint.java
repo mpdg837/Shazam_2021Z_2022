@@ -27,7 +27,7 @@ public class FingerPrint {
 	/**
 	 * The size of the neighborhood to search for peaks in
 	 */
-	private static final int PEAK_NEIGHBORHOOD = 15;
+	private static final int PEAK_NEIGHBORHOOD = MainParameters.WINDOW_SIZE;
 	
 	/**
 	 * The number of peaks to look through when generating a hash
@@ -66,8 +66,11 @@ public class FingerPrint {
 		List<Peak> peaks = new ArrayList<Peak>();
 		for(int i = 0; i < spectrogram.length; ++i) {
 			for(int j = 0; j < MainParameters.MAX_FREQUENCY; ++j) {
-				if(isPeakAt(i, j, spectrogram, PEAK_NEIGHBORHOOD)) {
-					peaks.add(new Peak(i, j));
+
+				if(j>MainParameters.MIN_FREQUENCY) {
+					if (isPeakAt(i, j, spectrogram, PEAK_NEIGHBORHOOD)) {
+						peaks.add(new Peak(i, j));
+					}
 				}
 			}
 		}
@@ -82,17 +85,18 @@ public class FingerPrint {
 			
 			// loop through the current peak and the next 15 peaks
 			for(int j = 0; j < FAN_VALUE; ++j) {
+
 				if(i + j >= peaks.size()) {
 					break;
 				}
-				
+
 				// get the two peaks
 				Peak one = peaks.get(i);
 				Peak two = peaks.get(i + j);
-				
+
 				// calculate the time between them
 				int delta = two.getTime() - one.getTime();
-				
+
 				// if they are within a reasonable time distance, calculate the hash
 				if(delta >= 0 && delta <= 200) {
 					hashes.add(new HashedPeak(one, two, delta, two.getTime()));
