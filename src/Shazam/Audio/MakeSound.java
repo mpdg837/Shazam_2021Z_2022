@@ -1,8 +1,11 @@
 package Shazam.Audio;
 
+import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
+import java.net.URLConnection;
 
 import javax.sound.sampled.*;
 
@@ -15,52 +18,43 @@ public class MakeSound {
     private AudioFormat audioFormat;
     private SourceDataLine sourceLine;
 
-    public double time(File file) throws UnsupportedAudioFileException, IOException {
-        AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(file);
-        AudioFormat format = audioInputStream.getFormat();
-        long frames = audioInputStream.getFrameLength();
+    private BufferedInputStream getStream(String file) throws UnsupportedAudioFileException, IOException{
+        URL url  = new URL(file);
+        URLConnection conn  = url.openConnection();
+        InputStream stream = conn.getInputStream();
+        BufferedInputStream streamb = new BufferedInputStream(stream);
+
+        return streamb;
+    }
+    public double time() throws UnsupportedAudioFileException, IOException {
+
+        AudioFormat format = audioStream.getFormat();
+        long frames = audioStream.getFrameLength();
        return (frames+0.0) / format.getFrameRate();
     }
-    public int playSoundURL(String url,int timeStart,boolean countTime){
 
-        String strFilename = url;
 
-        try {
-            soundFile = new URL(strFilename);
-        } catch (Exception e) {
-            e.printStackTrace();
-            System.exit(1);
-        }
+    public int playSound(String filename,double timeStart,int delta, boolean countTime) throws UnsupportedAudioFileException, IOException {
 
         try {
-            audioStream = AudioSystem.getAudioInputStream(soundFile);
+            audioStream = AudioSystem.getAudioInputStream(new File(filename));
         } catch (Exception e){
-            e.printStackTrace();
-            System.exit(1);
+            try {
+                audioStream = AudioSystem.getAudioInputStream(getStream(filename));
+            } catch (Exception er){
+                er.printStackTrace();
+                System.exit(1);
+            }
         }
 
-        return playing(timeStart,countTime);
-    }
+        int full = (int)time();
+        double extra = (double)delta/(double)full;
 
-    public int playSound(String filename,int timeStart, boolean countTime){
+        timeStart += extra;
 
-        String strFilename = filename;
+        System.out.println("Czas: "+(timeStart*full)+"s");
 
-        try {
-            soundFile1 = new File(strFilename);
-        } catch (Exception e) {
-            e.printStackTrace();
-            System.exit(1);
-        }
-
-        try {
-            audioStream = AudioSystem.getAudioInputStream(soundFile1);
-        } catch (Exception e){
-            e.printStackTrace();
-            System.exit(1);
-        }
-
-        return playing(timeStart,countTime);
+        return playing((int)(timeStart*full),countTime);
     }
 
     private int playing(int timeStart,boolean countTime){

@@ -47,19 +47,10 @@ public class ComparerTime {
                 int delta = (int) timeElapsed.toSeconds();
 
                 MakeSound sound = new MakeSound();
-                int full = (int)sound.time(new File("Samples/" + filename));
 
-                double extra = (double)delta/(double)full;
-
-                partTime += extra;
-
-                int maxTime = sound.playSound("Samples/" + filename, 0, true);
-
-                int actTim = (int) ((double) maxTime * (double) partTime);
-                System.out.println("Czas: "+(partTime*full)+"s");
-                sound.playSound("Samples/" + filename, actTim, false);
-            }catch (Exception ignore){
-
+                sound.playSound("http://192.168.156.171/" + filename, partTime,delta, false);
+            }catch (Exception err){
+                err.printStackTrace();
             }
         }
     }
